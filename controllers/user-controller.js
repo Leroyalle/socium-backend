@@ -80,6 +80,7 @@ const UserController = {
   updateUser: async (req, res) => {},
   current: async (req, res) => {
     console.log('current');
+    res.send(req.user);
   },
 };
 
