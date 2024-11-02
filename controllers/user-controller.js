@@ -106,10 +106,7 @@ const UserController = {
   },
   updateUser: async (req, res) => {
     const id = req.params.id;
-
-    if (id !== req.user.userId) {
-      return res.status(403).json({ error: 'Нет доступа' });
-    }
+    const userId = req.user.userId;
 
     const { email, name, password, dateOfBirth, bio, location } = req.body;
 
@@ -118,9 +115,9 @@ const UserController = {
       filepath = req.file.path;
     }
 
-    // if (id !== userId) {
-    //   return res.status(403).json({ error: 'Forbidden' });
-    // }
+    if (id !== userId) {
+      return res.status(403).json({ error: 'Forbidden' });
+    }
 
     try {
       if (email) {
@@ -155,8 +152,34 @@ const UserController = {
     }
   },
   current: async (req, res) => {
-    console.log('current');
-    res.send(req.user);
+    const id = req.user.userId;
+
+    try {
+      const findUser = await prisma.user.findUnique({
+        where: { id },
+        include: {
+          followers: {
+            include: {
+              follower: true,
+            },
+          },
+          following: {
+            include: {
+              following: true,
+            },
+          },
+        },
+      });
+
+      if (!findUser) {
+        return res.status(400).json({ error: 'Пользователь не найден' });
+      }
+
+      res.json(findUser);
+    } catch (error) {
+      console.log('Error [CURRENT_USER]', error);
+      res.status(500).json({ error: 'Internal server error' });
+    }
   },
 };
 
