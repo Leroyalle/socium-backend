@@ -14,7 +14,7 @@ const UserController = {
     }
 
     try {
-      const findUser = await prisma.user.findUnique({
+      const findUser = await prisma.user.findFirst({
         where: {
           email,
         },
@@ -52,7 +52,7 @@ const UserController = {
       return res.status(400).json({ message: 'Все поля обязательны' });
     }
     try {
-      const findUser = await prisma.user.findUnique({
+      const findUser = await prisma.user.findFirst({
         where: {
           email,
         },
@@ -104,7 +104,56 @@ const UserController = {
       res.status(500).json({ error: 'Internal server error' });
     }
   },
-  updateUser: async (req, res) => {},
+  updateUser: async (req, res) => {
+    const id = req.params.id;
+
+    if (id !== req.user.userId) {
+      return res.status(403).json({ error: 'Нет доступа' });
+    }
+
+    const { email, name, password, dateOfBirth, bio, location } = req.body;
+
+    let filepath;
+    if (req.file && req.file.path) {
+      filepath = req.file.path;
+    }
+
+    // if (id !== userId) {
+    //   return res.status(403).json({ error: 'Forbidden' });
+    // }
+
+    try {
+      if (email) {
+        const existingUser = await prisma.user.findFirst({
+          where: {
+            email,
+          },
+        });
+
+        if (existingUser && existingUser.id !== id) {
+          return res.status(400).json({ error: 'Пользователь уже существует' });
+        }
+      }
+
+      const updatedUser = await prisma.user.update({
+        where: { id },
+        data: {
+          email: email || undefined,
+          name: name || undefined,
+          password: password ? await bcrypt.hash(password, 10) : undefined,
+          dateOfBirth: dateOfBirth || undefined,
+          bio: bio || undefined,
+          location: location || undefined,
+          avatarUrl: filepath ? `/${filepath}` : undefined,
+        },
+      });
+
+      res.json(updatedUser);
+    } catch (error) {
+      console.log('Error [UPDATE_USER]', error);
+      res.status(500).json({ error: 'Internal server error' });
+    }
+  },
   current: async (req, res) => {
     console.log('current');
     res.send(req.user);
