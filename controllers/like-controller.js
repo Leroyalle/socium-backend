@@ -11,30 +11,43 @@ const LikeController = {
 
     try {
       const existingLike = await prisma.like.findFirst({
-        where: {
-          AND: [{ userId }, { postId }],
-        },
+        where: { postId, userId },
       });
 
       if (existingLike) {
-        return res.status(400).json({ error: 'Вы уже поставили лайк этому посту' });
+        return res.status(400).json({ error: 'Вы уже поставили лайк этому посту' });
       }
 
       const like = await prisma.like.create({
-        data: {
-          userId,
-          postId,
-        },
+        data: { postId, userId },
       });
 
       res.json(like);
     } catch (error) {
-      console.log('Error [LIKE_POST]', error);
       res.status(500).json({ error: 'Internal server error' });
     }
   },
   unlikePost: async (req, res) => {
-    res.send('unlike post');
+    const { id } = req.params;
+    const userId = req.user.userId;
+
+    try {
+      const existingLike = await prisma.like.findFirst({
+        where: { postId: id, userId },
+      });
+
+      if (!existingLike) {
+        return res.status(400).json({ error: 'Нельзя поставить дизлайк' });
+      }
+
+      const like = await prisma.like.deleteMany({
+        where: { postId: id, userId },
+      });
+
+      res.json(like);
+    } catch (error) {
+      res.status(500).json({ error: 'Internal server error' });
+    }
   },
 };
 
