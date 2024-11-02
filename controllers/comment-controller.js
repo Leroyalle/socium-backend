@@ -38,7 +38,7 @@ const CommentController = {
         return res.status(403).json({ error: 'Вы не авторизованы для удаления этого комментария' });
       }
 
-      await prisma.comment.delete({ where: { id } });
+      await prisma.comment.delete({ where: { id: findComment.id } });
 
       res.json(findComment);
     } catch (error) {
