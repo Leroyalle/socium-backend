@@ -6,6 +6,7 @@ services:
       - '3000:3000'
     depends_on:
       - db
+      - socium-frontend
     environment:
       DATABASE_URL: 'mongodb://monty:pass@db:27017/mydatabase?authSource=admin&directConnection=true'
   db:
@@ -13,5 +14,9 @@ services:
     ports:
       - '27017:27017'
     environment:
-      MONGO_INITDB_ROOT_USERNAME: 'monty'
-      MONGO_INITDB_ROOT_PASSWORD: 'pass'
+      MONGO_INITDB_ROOT_USERNAME: monty
+      MONGO_INITDB_ROOT_PASSWORD: pass
+  socium-frontend:
+    build: ../socium-frontend
+    ports:
+      - '80:80'

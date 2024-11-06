@@ -65,7 +65,7 @@ const UserController = {
       const isPasswordValid = await bcrypt.compare(password, findUser.password);
 
       if (!isPasswordValid) {
-        return res.status(400).json({ error: 'Неверный пароль' });
+        return res.status(400).json({ error: 'Неверный логин или пароль' });
       }
 
       const token = jwt.sign({ userId: findUser.id }, process.env.SECRET_KEY);

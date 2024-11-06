@@ -36,20 +36,20 @@ const FollowController = {
     }
   },
   unFollowUser: async (req, res) => {
-    const { followingId } = req.body;
+    const { id } = req.params;
     const userId = req.user.userId;
 
-    if (!followingId) {
+    if (!id) {
       return res.status(400).json({ error: 'Все поля обязательны' });
     }
 
-    if (followingId === userId) {
+    if (id === userId) {
       return res.status(500).json({ error: 'Нельзя отписаться от самого себя' });
     }
 
     try {
       const existingFollow = await prisma.follows.findFirst({
-        where: { followerId: userId, followingId },
+        where: { followerId: userId, followingId: id },
       });
 
       if (!existingFollow) {

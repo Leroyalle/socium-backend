@@ -27,7 +27,7 @@ router.post('/register', UserController.register);
 router.post('/login', UserController.login);
 router.get('/current', authenticateToken, UserController.current);
 router.get('/users/:id', authenticateToken, UserController.getUserById);
-router.put('/users/:id', authenticateToken, UserController.updateUser);
+router.put('/users/:id', authenticateToken, uploads.single('avatar'), UserController.updateUser);
 
 // post
 router.post('/posts', authenticateToken, PostController.createPost);
@@ -45,6 +45,6 @@ router.delete('/likes/:id', authenticateToken, LikeController.unlikePost);
 
 // follow
 router.post('/follow', authenticateToken, FollowController.followUser);
-router.delete('/unfollow', authenticateToken, FollowController.unFollowUser);
+router.delete('/unFollow/:id', authenticateToken, FollowController.unFollowUser);
 
 module.exports = router;
